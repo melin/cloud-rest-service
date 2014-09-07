@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd"
+	xmlns:c="http://www.springframework.org/schema/c" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util">
+
+	<context:component-scan base-package="com.iflytek.edu.cloud.oauth2.controller"/>
+	
+	<mvc:annotation-driven>
+		<mvc:message-converters register-defaults="false">
+			<bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter"></bean>
+	        <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+	        	<property name="writeAcceptCharset" value="false" />
+	        	<property name="supportedMediaTypes">
+	        	    <list>
+	        	      <value>text/html;charset=UTF-8</value>
+	        	    </list>
+	        	</property>
+	        </bean>
+	        <bean class="com.iflytek.edu.cloud.oauth2.support.MappingJackson2HttpMessageConverterExt" />
+	    </mvc:message-converters>
+	</mvc:annotation-driven>
+	
+	<mvc:resources location="/resources/" mapping="/resources/**" cache-period="3600"/>
+	
+	<mvc:view-controller path="/" view-name="index" />
+	<mvc:view-controller path="/login" view-name="login" />
+
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+        <property name="prefix" value="/WEB-INF/views/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+</beans>
+

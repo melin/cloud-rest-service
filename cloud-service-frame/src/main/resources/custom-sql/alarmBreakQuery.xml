@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls>
+	<description>获取网元中断信息</description>
+	<sql
+		id="loadAlarBreData" tempateType="httl">
+		<![CDATA[
+			select  * 
+			from 	alarm_collect_connect_info a
+			where 	1=1
+					#if(phyNeName != null)
+						and a.phy_ne_name = :phyNeName
+					#end
+		]]>
+	</sql>
+</sqls>

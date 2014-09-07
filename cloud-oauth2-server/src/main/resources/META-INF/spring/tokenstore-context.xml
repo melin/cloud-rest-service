@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:oauth2="http://www.springframework.org/schema/security/oauth2"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+		http://www.springframework.org/schema/security/oauth2 http://www.springframework.org/schema/security/spring-security-oauth2.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+	<beans profile="jdbc">
+		<bean id="tokenStore" class="org.springframework.security.oauth2.provider.token.store.JdbcTokenStore">
+			<constructor-arg name="dataSource" ref="dataSource"></constructor-arg>
+		</bean>
+	</beans>
+	
+	<beans profile="redis">
+		<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+			<property name="maxTotal" value="${redis.pool.maxTotal}" />
+			<property name="maxIdle" value="${redis.pool.maxIdle}" />
+			<property name="minIdle" value="${redis.pool.minIdle}" />
+			<property name="maxWaitMillis" value="${redis.pool.maxWaitMillis}" />
+		</bean>
+	
+		<bean id="jedisPool" class="com.iflytek.edu.cloud.oauth2.support.JedisPoolFactoryBean">
+			<property name="config" ref="jedisPoolConfig" />
+			<property name="redisAddress" value="${redis.address}" />
+		</bean>
+		
+		<bean id="tokenStore" class="com.iflytek.edu.cloud.oauth2.support.RedisTokenStore">
+			<property name="jedisPool" ref="jedisPool" />
+		</bean>
+	</beans>
+</beans>

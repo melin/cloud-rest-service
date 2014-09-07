@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd"
+	xmlns:c="http://www.springframework.org/schema/c" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util">
+	
+	<context:component-scan base-package="com.github.melin.rest.controller"/>
+	
+	<bean id="openServiceFilter" class="com.iflytek.edu.cloud.frame.web.filter.CheckOpenServiceFilter">
+ 		<property name="messageConverter" ref="errorRequestMessageConverter" />
+ 		<property name="handlerMapping" ref="requestMappingHandlerMapping" />
+	</bean>
+	
+	<bean id="CORSFilter" class="com.iflytek.edu.cloud.frame.web.filter.CORSFilter" >
+		<property name="origins" value="${allowed.origins}" />
+	</bean>
+	
+	<bean id="requestMappingHandlerMapping" class="com.iflytek.edu.cloud.frame.spring.rest.ServiceMethodHandlerMapping">
+		<property name="order" value="0" />
+	</bean>
+	
+	<bean class="com.iflytek.edu.cloud.frame.spring.RequestMappingHandlerAdapterFactoryBean">
+		<property name="messageConverters" ref="messageConverters" />
+	</bean>
+	
+	<bean class="com.iflytek.edu.cloud.frame.spring.DefaultHandlerExceptionResolver">
+		<property name="order" value="0" />
+		<property name="messageConverter" ref="errorRequestMessageConverter" />
+	</bean>
+	
+	<bean id="errorRequestMessageConverter" class="com.iflytek.edu.cloud.frame.error.support.ErrorRequestMessageConverter">
+		<property name="jsonMessageConverter" ref="jsonMessageConverter" />
+		<property name="xmlMessageConverter" ref="xmlMessageConverter" />
+	</bean>
+	
+	<bean id="jsonMessageConverter" class="com.iflytek.edu.cloud.frame.spring.MappingJackson2HttpMessageConverterExt"></bean>
+	<bean id="xmlMessageConverter" class="com.iflytek.edu.cloud.frame.spring.Jaxb2RootElementHttpMessageConverterExt"></bean>
+	<util:list id="messageConverters">
+		<ref bean="jsonMessageConverter"/>
+		<ref bean="xmlMessageConverter"/>
+	</util:list>
+	
+	<bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver"></bean>
+</beans>
+

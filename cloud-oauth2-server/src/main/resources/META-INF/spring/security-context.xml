@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:oauth2="http://www.springframework.org/schema/security/oauth2"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+		http://www.springframework.org/schema/security/oauth2 http://www.springframework.org/schema/security/spring-security-oauth2.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+	
+	<bean id="CORSFilter" class="com.iflytek.edu.cloud.oauth2.support.CORSFilter" >
+		<property name="origins" value="${allowed.origins}" />
+	</bean>
+
+	<security:http pattern="/oauth/token" create-session="stateless"
+		authentication-manager-ref="oauthAuthenticationManager"
+		entry-point-ref="oauthAuthenticationEntryPoint">
+		<security:intercept-url pattern="/oauth/token"
+			access="IS_AUTHENTICATED_FULLY" />
+		<security:anonymous enabled="false" />
+		<security:http-basic entry-point-ref="oauthAuthenticationEntryPoint" />
+		<security:custom-filter ref="clientCredentialsTokenEndpointFilter"
+			before="BASIC_AUTH_FILTER" />
+		<security:access-denied-handler ref="oauthAccessDeniedHandler" />
+	</security:http>
+	
+	<security:http access-denied-page="/login?authorization_error=true" disable-url-rewriting="true" 
+		authentication-manager-ref="authenticationManager" >
+		<security:intercept-url pattern="/oauth/**" access="ROLE_USER"/>
+		
+		<security:intercept-url pattern="/" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/resources/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		
+		<security:form-login authentication-failure-url="/login?authentication_error=true"
+			default-target-url="/" login-page="/login" login-processing-url="/login.do" />
+			<security:logout logout-success-url="/" logout-url="/logout.do" />
+			<security:anonymous />
+	</security:http>
+
+
+	<bean id="accessDecisionManager" class="org.springframework.security.access.vote.UnanimousBased"
+		xmlns="http://www.springframework.org/schema/beans">
+		<constructor-arg>
+			<list>
+				<!-- <bean class="org.springframework.security.oauth2.provider.vote.ScopeVoter" /> -->
+				<bean class="org.springframework.security.access.vote.RoleVoter" />
+				<bean class="org.springframework.security.access.vote.AuthenticatedVoter" />
+			</list>
+		</constructor-arg>
+	</bean>
+
+</beans>

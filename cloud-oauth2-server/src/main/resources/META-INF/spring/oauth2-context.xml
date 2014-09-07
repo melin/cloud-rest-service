@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:oauth2="http://www.springframework.org/schema/security/oauth2"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+		http://www.springframework.org/schema/security/oauth2 http://www.springframework.org/schema/security/spring-security-oauth2.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+	<security:authentication-manager alias="authenticationManager" erase-credentials="true">
+	</security:authentication-manager>
+	
+	<security:authentication-manager id="oauthAuthenticationManager">
+		<security:authentication-provider
+			user-service-ref="clientDetailsUserService" />
+	</security:authentication-manager>
+	
+	<bean id="clientCredentialsTokenEndpointFilter"
+		class="org.springframework.security.oauth2.provider.client.ClientCredentialsTokenEndpointFilter">
+		<property name="authenticationManager" ref="oauthAuthenticationManager" />
+	</bean>
+
+	<bean id="clientDetailsUserService"
+		class="org.springframework.security.oauth2.provider.client.ClientDetailsUserDetailsService">
+		<constructor-arg ref="clientDetails" />
+	</bean>
+
+	<bean id="clientDetails" class="org.springframework.security.oauth2.provider.client.JdbcClientDetailsService">
+		<constructor-arg name="dataSource" ref="dataSource"></constructor-arg>
+	</bean>
+	
+	<bean id="oauth2RequestFactory" class="org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory">
+		<constructor-arg index="0" ref="clientDetails" />
+	</bean>
+	
+	<bean id="tokenServices" class="org.springframework.security.oauth2.provider.token.DefaultTokenServices">
+		<property name="tokenStore" ref="tokenStore" />
+		<property name="supportRefreshToken" value="true" />
+		<property name="clientDetailsService" ref="clientDetails" />
+	</bean>
+	
+	<bean id="implicitGrantService" class="org.springframework.security.oauth2.provider.implicit.InMemoryImplicitGrantService" />
+	<bean id="oauth2RequestValidator" class="org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestValidator" />
+	<bean id="authorizationCodeServices" class="org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices">
+		<constructor-arg index="0" ref="dataSource"/>
+	</bean>
+	
+	<bean id="tokenGranter" class="org.springframework.security.oauth2.provider.CompositeTokenGranter">
+		<constructor-arg index="0">
+			<list>
+				<bean class="org.springframework.security.oauth2.provider.code.AuthorizationCodeTokenGranter">
+					<constructor-arg index="0" ref="tokenServices" />
+					<constructor-arg index="1" ref="authorizationCodeServices" />
+					<constructor-arg index="2" ref="clientDetails" />
+					<constructor-arg index="3" ref="oauth2RequestFactory" />
+				</bean>
+				
+				<bean class="org.springframework.security.oauth2.provider.refresh.RefreshTokenGranter">
+					<constructor-arg index="0" ref="tokenServices" />
+					<constructor-arg index="1" ref="clientDetails" />
+					<constructor-arg index="2" ref="oauth2RequestFactory" />
+				</bean>
+				
+				<bean class="org.springframework.security.oauth2.provider.implicit.ImplicitTokenGranter">
+					<constructor-arg index="0" ref="tokenServices" />
+					<constructor-arg index="1" ref="clientDetails" />
+					<constructor-arg index="2" ref="oauth2RequestFactory" />
+					<property name="implicitGrantService" ref="implicitGrantService" />
+				</bean>
+				
+				<bean class="org.springframework.security.oauth2.provider.client.ClientCredentialsTokenGranter">
+					<constructor-arg index="0" ref="tokenServices" />
+					<constructor-arg index="1" ref="clientDetails" />
+					<constructor-arg index="2" ref="oauth2RequestFactory" />
+					<property name="allowRefresh" value="true" />
+				</bean>
+				
+				<bean class="org.springframework.security.oauth2.provider.password.ResourceOwnerPasswordTokenGranter">
+					<constructor-arg index="0" ref="authenticationManager" />
+					<constructor-arg index="1" ref="tokenServices" />
+					<constructor-arg index="2" ref="clientDetails" />
+					<constructor-arg index="3" ref="oauth2RequestFactory" />
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="oauth2AuthorizationEndpoint" class="org.springframework.security.oauth2.provider.endpoint.AuthorizationEndpoint">
+		<property name="implicitGrantService" ref="implicitGrantService" />
+		<property name="OAuth2RequestValidator" ref="oauth2RequestValidator" />
+		<property name="tokenGranter" ref="tokenGranter" />
+		<property name="authorizationCodeServices" ref="authorizationCodeServices" />
+		<property name="OAuth2RequestFactory" ref="oauth2RequestFactory" />
+		<property name="clientDetailsService" ref="clientDetails" />
+	</bean>
+	
+	<bean id="oauth2TokenEndpoint" class="com.iflytek.edu.cloud.oauth2.support.TokenEndpoint">
+		<property name="clientDetailsService" ref="clientDetails"/>
+		<property name="tokenGranter" ref="tokenGranter" />
+		<property name="OAuth2RequestValidator" ref="oauth2RequestValidator" />
+		<property name="OAuth2RequestFactory" ref="oauth2RequestFactory" />
+	</bean>
+	
+	<bean id="oauth2HandlerMapping" class="org.springframework.security.oauth2.provider.endpoint.FrameworkEndpointHandlerMapping">
+	</bean>
+	
+	<bean id="oauthAccessDeniedHandler"
+		class="org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler" />
+	<bean id="oauthAuthenticationEntryPoint"
+		class="org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint" />
+		
+	<bean id="oauthExpressionHandler" class="org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler" />
+	<bean id="oauthWebExpressionHandler"  class="org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler" />
+</beans>
