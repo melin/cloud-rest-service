@@ -10,3 +10,7 @@
 /cloud-service-frame/.settings
 /.metadata
 /RemoteSystemsTempFiles
+/rest-demo/.project
+/rest-demo/.settings
+/rest-demo/target
+/rest-demo/.classpath
