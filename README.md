@@ -1,6 +1,7 @@
 借鉴[ROP](https://github.com/itstamen/rop "ROP")的思路开发的rest服务框架，在Spring mvc基础上实现的，集成了oauth2认证。
 
 基于微服务架构服务平台（MSA），服务按照业务模块化划分粒度，支持服务快速开发、构建、部署。例如有多个业务服务，划分为多个java工程，一个工程独立部署，通过nginx+lua实现访问入口统一：
+![](https://raw.githubusercontent.com/melin/cloud-rest-service/master/doc/images/deploy.png)
 
 nginx+lua配置
 
