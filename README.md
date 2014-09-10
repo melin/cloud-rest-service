@@ -1,4 +1,36 @@
-借鉴[ROP](https://github.com/itstamen/rop "ROP")的思路开发的rest服务框架，在Spring mvc基础上实现的。
+借鉴[ROP](https://github.com/itstamen/rop "ROP")的思路开发的rest服务框架，在Spring mvc基础上实现的，集成了oauth2认证。
+
+基于微服务架构服务平台（MSA），服务按照业务模块化划分粒度，支持服务快速开发、构建、部署。例如有多个业务服务，划分为多个java工程，一个工程独立部署，通过nginx+lua实现访问入口统一：
+
+nginx+lua配置
+
+```sh
+location = /api {
+    rewrite_by_lua '
+        local reqType = ngx.req.get_method();
+        local method = "";
+        if reqType == "POST" then
+            ngx.req.read_body();
+            local params = ngx.req.get_post_args();
+            method = params.method;
+	        if not method then
+                method = ngx.req.get_uri_args().method; 
+	        end;
+        else
+            local params = ngx.req.get_uri_args();
+            method = params.method;
+        end
+        
+        if string.find(method, "pan") == 1 then
+            ngx.req.set_uri("/pan_instance", true);
+	    elseif string.find(method, "res") == 1 then
+            ngx.req.set_uri("/res_instance", true);
+        else
+            ngx.req.set_uri("/core_instance", true);
+        end
+    ';
+} 
+```
 
 # **rest-demo** #
 
