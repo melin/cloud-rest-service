@@ -116,3 +116,10 @@ public class UserServiceTest {
 	}
 }
 ```
+
+由于内嵌jetty服务器，测试&生产环境可以直接执行mvn命令，打包、上传、解压运行：
+
+	mvn install assembly:single
+    tar -zxf rest-demo-0.3.0-SNAPSHOT-bin.tar.gz
+    cd rest-demo-*
+    ./bin/server.sh start
