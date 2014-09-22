@@ -16,8 +16,6 @@
 	    <property name="properties" ref="propertiesConfiguration" />
 	</bean>
 	<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
-	    <constructor-arg index="0" value="cloud-service" />
-	    <constructor-arg index="1" value="${profiles.active}" />
 	</bean>
 
 	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
