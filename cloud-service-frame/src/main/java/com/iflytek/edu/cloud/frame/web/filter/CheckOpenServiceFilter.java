@@ -18,6 +18,7 @@ package com.iflytek.edu.cloud.frame.web.filter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.handler.AbstractHandlerMethodMapping;
@@ -155,7 +157,7 @@ public class CheckOpenServiceFilter implements Filter, InitializingBean {
         if(mainError == null) {
             if(EnvUtil.oauthEnabled()){
                 String accessToken = request.getParameter(Constants.SYS_PARAM_KEY_ACCESS_TOKEN);
-                if(!StringUtils.hasText(accessToken)) {
+                if(!checkHeaderToken(httpServletRequest) && !StringUtils.hasText(accessToken)) {
                     mainError = MainErrors.getError(MainErrorType.MISSING_ACCESS_TOKEN, locale);
                 }
             }
@@ -185,6 +187,18 @@ public class CheckOpenServiceFilter implements Filter, InitializingBean {
 		
 		Locale locale = StringUtils.parseLocaleString(localePart);
 		return locale;
+	}
+	
+	private boolean checkHeaderToken(HttpServletRequest request) {
+		Enumeration<String> headers = request.getHeaders("Authorization");
+		while (headers.hasMoreElements()) {
+			String value = headers.nextElement();
+			if ((value.toLowerCase().startsWith(OAuth2AccessToken.BEARER_TYPE.toLowerCase()))) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	@Override
