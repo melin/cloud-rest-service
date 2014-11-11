@@ -38,6 +38,7 @@ import org.springframework.web.servlet.mvc.method.annotation.HttpHeadersReturnVa
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.ServletModelAttributeMethodProcessor;
 import org.springframework.web.servlet.mvc.method.annotation.ServletRequestMethodArgumentResolver;
+import org.springframework.web.servlet.mvc.method.annotation.ServletResponseMethodArgumentResolver;
 
 /**
  * 创建RequestMappingHandlerAdapter，裁剪不需要的功能。 
@@ -96,6 +97,7 @@ public class RequestMappingHandlerAdapterFactoryBean implements FactoryBean<Requ
 
 		// Catch-all
 		resolvers.add(new RequestParamMethodArgumentResolver(null, true));
+		resolvers.add(new ServletResponseMethodArgumentResolver());
 		resolvers.add(new ServletModelAttributeMethodProcessor(true));
 
 		return resolvers;
