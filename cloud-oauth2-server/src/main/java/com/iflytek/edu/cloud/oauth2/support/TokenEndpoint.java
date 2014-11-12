@@ -65,6 +65,16 @@ public class TokenEndpoint extends AbstractEndpoint {
 				throw new InvalidClientException("Given client ID does not match authenticated client");
 			}
 		}
+		
+		//check appkey disabled
+		Map<String, Object> additionalInformation = authenticatedClient.getAdditionalInformation();
+		if(additionalInformation != null) {
+			Object enabled = additionalInformation.get("enabled");
+			if(enabled != null && !(Boolean)enabled) {
+				throw new InvalidRequestException("appkey have been disabled");
+			}
+		}
+		
 		if (authenticatedClient != null) {
 			oauth2RequestValidator.validateScope(tokenRequest, authenticatedClient);
 		}
