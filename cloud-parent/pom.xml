@@ -16,7 +16,7 @@
    		<cglib.version>3.1</cglib.version>
    		<aspectj.version>1.8.1</aspectj.version>
 		<spring.version>4.0.6.RELEASE</spring.version>
-		<spring.security.version>3.2.4.RELEASE</spring.security.version>
+		<spring.security.version>5.5.7</spring.security.version>
 		<spring.security.oauth.version>2.0.3.RELEASE</spring.security.oauth.version>
 
 		<logback.version>1.1.2</logback.version>
