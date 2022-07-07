@@ -20,7 +20,7 @@
 		<servlet.version>3.1.1</servlet.version>
 		<jsp.version>2.2</jsp.version>
 		<jstl.version>1.2</jstl.version>
-		<jetty.version>9.2.2.v20140723</jetty.version>
+		<jetty.version>10.0.10</jetty.version>
 	</properties>
 	
 	<dependencies>
